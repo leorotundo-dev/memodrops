@@ -5,7 +5,10 @@ nixPkgs = ["nodejs-18_x"]
 cmds = ["npm install --include=workspace-root"]
 
 [phases.build]
-cmds = ["npm run build --workspace=backend"]
+cmds = [
+  "npm run build --workspace=@memodrops/shared",
+  "npm run build --workspace=backend"
+]
 
 [start]
 cmd = "npm run start --workspace=backend"
