@@ -92,3 +92,31 @@ CREATE TABLE IF NOT EXISTS drop_cache (
 );
 
 CREATE INDEX IF NOT EXISTS idx_drop_cache_blueprint_topic ON drop_cache(blueprint_id, topic_code);
+
+
+-- Stage 16 - Harvest e Blueprints de Provas
+
+CREATE TABLE IF NOT EXISTS harvest_items (
+  id SERIAL PRIMARY KEY,
+  source TEXT NOT NULL,
+  url TEXT NOT NULL,
+  raw_html TEXT,
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  processed_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS exam_blueprints (
+  id SERIAL PRIMARY KEY,
+  harvest_item_id INTEGER REFERENCES harvest_items(id),
+  exam_code TEXT,
+  banca TEXT,
+  cargo TEXT,
+  disciplina TEXT,
+  blueprint JSONB NOT NULL,
+  priorities JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_harvest_items_status ON harvest_items(status);
+CREATE INDEX IF NOT EXISTS idx_exam_blueprints_disciplina ON exam_blueprints(disciplina);
