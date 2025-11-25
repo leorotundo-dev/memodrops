@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "../../../lib/api";
 import { StatCard } from "../../../components/ui/StatCard";
+import { FinancialSummary } from "../../../components/FinancialSummary";
 
 interface DashboardStats {
   usersCount: number;
@@ -45,16 +46,22 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {loading && <p className="text-sm text-zinc-400">Carregando...</p>}
+      {/* Resumo Financeiro */}
+      <FinancialSummary />
 
-      {!loading && stats && (
-        <div className="grid gap-4 md:grid-cols-4">
-          <StatCard label="Usuários" value={stats.usersCount} />
-          <StatCard label="Drops" value={stats.dropsCount} />
-          <StatCard label="Disciplinas" value={stats.disciplinesCount} />
-          <StatCard label="Reviews hoje" value={stats.reviewsToday} />
-        </div>
-      )}
+      <div className="border-t border-zinc-800 pt-6">
+        <h2 className="text-lg font-semibold mb-4">Métricas Gerais</h2>
+        {loading && <p className="text-sm text-zinc-400">Carregando...</p>}
+
+        {!loading && stats && (
+          <div className="grid gap-4 md:grid-cols-4">
+            <StatCard label="Usuários" value={stats.usersCount} />
+            <StatCard label="Drops" value={stats.dropsCount} />
+            <StatCard label="Disciplinas" value={stats.disciplinesCount} />
+            <StatCard label="Reviews hoje" value={stats.reviewsToday} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
