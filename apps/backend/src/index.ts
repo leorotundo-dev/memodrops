@@ -1,6 +1,7 @@
 import { buildServer } from './server';
 import { env } from './env';
 import { runMigrations } from './migrate';
+import { initializeScheduler } from './scheduler/jobScheduler';
 
 async function main() {
   // Executar migrações
@@ -11,6 +12,9 @@ async function main() {
   try {
     await app.listen({ port: env.PORT, host: '0.0.0.0' });
     app.log.info(`🚀 MemoDrops backend rodando na porta ${env.PORT}`);
+
+    // Inicializar scheduler de jobs
+    await initializeScheduler();
   } catch (err) {
     app.log.error(err);
     process.exit(1);

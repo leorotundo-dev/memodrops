@@ -8,6 +8,7 @@ import trailRoutes from './trail';
 import srsRoutes from './srs';
 import adminRagRoutes from './admin-rag';
 import { adminAIRoutes } from './admin-ai';
+import { jobsRoutes } from './jobs';
 
 export async function registerRoutes(app: FastifyInstance) {
   app.register(healthRoutes);
@@ -19,4 +20,5 @@ export async function registerRoutes(app: FastifyInstance) {
   app.register(srsRoutes);
   app.register(adminRagRoutes);
   app.register(adminAIRoutes);
+  app.register(jobsRoutes);
 }
