@@ -20,7 +20,8 @@ function buildHeaders() {
 export async function apiGet(path: string) {
   const res = await fetch(API_URL + path, {
     method: "GET",
-    headers: buildHeaders()
+    headers: buildHeaders(),
+    credentials: 'include'
   });
   if (!res.ok) {
     throw new Error(`GET ${path} failed: ${res.status}`);
@@ -33,7 +34,8 @@ export async function apiPost(path: string, body: any) {
     const res = await fetch(API_URL + path, {
       method: "POST",
       headers: buildHeaders(),
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      credentials: 'include'
     });
     if (!res.ok) {
       const errorText = await res.text();
