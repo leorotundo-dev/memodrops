@@ -1,38 +1,50 @@
-# Use Node.js 22
-# Build timestamp: 2025-11-25T01:23:00Z
-FROM node:22-alpine
+# Build stage
+FROM node:22-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
-COPY pnpm-workspace.yaml ./
-COPY apps/backend/package.json ./apps/backend/
-COPY apps/web/package.json ./apps/web/
-COPY packages/shared/package.json ./packages/shared/
-COPY apps/ai/package.json ./apps/ai/
+# Copy root package files
+COPY package.json package-lock.json ./
+
+# Copy workspace packages
+COPY packages/shared ./packages/shared
+COPY apps/backend ./apps/backend
 
 # Install dependencies
 RUN npm install
 
-# Copy source code
-COPY . .
-
-# Build shared first
-RUN npm run build --workspace=@memodrops/shared
-
-# Build AI
-RUN npm run build --workspace=@memodrops/ai
+# Build shared package
+WORKDIR /app/packages/shared
+RUN npm run build
 
 # Build backend
-RUN npm run build --workspace=@memodrops/backend
+WORKDIR /app/apps/backend
+RUN npm run build
 
-# Build web
-RUN npm run build --workspace=web
+# Runtime stage
+FROM node:22-alpine
 
-# Expose ports
-EXPOSE 3333 3000
+WORKDIR /app
 
-# Start backend (default)
-CMD ["npm", "run", "start", "--workspace=@memodrops/backend"]
+# Copy root package files
+COPY package.json package-lock.json ./
+
+# Copy workspace packages
+COPY packages/shared ./packages/shared
+COPY apps/backend ./apps/backend
+
+# Install production dependencies only
+RUN npm install --omit=dev
+
+# Copy built files from builder
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+
+# Expose port
+EXPOSE 3333
+
+# Set working directory to backend
+WORKDIR /app/apps/backend
+
+# Start the application
+CMD ["node", "dist/index.js"]
