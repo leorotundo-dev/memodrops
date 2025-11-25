@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import fp from 'fastify-plugin';
 
-async function routes(app: FastifyInstance) {
+export default async function healthRoutes(app: FastifyInstance) {
   app.get('/', async () => {
     return {
       status: 'ok',
@@ -10,5 +9,3 @@ async function routes(app: FastifyInstance) {
     };
   });
 }
-
-export const healthRoutes = fp(routes);
