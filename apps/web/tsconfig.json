@@ -4,25 +4,24 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "es2020"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "incremental": true,
-    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "paths": {
-      "@memodrops/shared": [
-        "../../packages/shared/src"
-      ]
-    },
+    "incremental": true,
+    "types": [
+      "node",
+      "react",
+      "react-dom"
+    ],
+    "esModuleInterop": true,
     "plugins": [
       {
         "name": "next"

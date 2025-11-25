@@ -1,19 +1,20 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import "./globals.css";
 
-export const metadata: Metadata = {
-  title: 'MemoDrops',
-  description: 'Your personal knowledge management system',
+export const metadata = {
+  title: "MemoDrops Admin",
+  description: "Painel de gestão do MemoDrops"
 };
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="pt-BR">
+      <body className="min-h-screen bg-zinc-950 text-zinc-50">
+        {children}
+      </body>
     </html>
   );
 }

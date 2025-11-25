@@ -40,3 +40,4 @@ apps/backend/dist/
 apps/web/.next/
 packages/shared/dist/
 apps/ai/dist/
+.vercel
