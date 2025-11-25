@@ -20,7 +20,7 @@ export default function DashboardPage() {
       setLoading(true);
       try {
         // Ajuste essa rota para o endpoint real de métricas/admin que você tiver
-        const data = await apiGet("/admin/metrics/daily?metricName=overview");
+        const data = await apiGet("/admin/metrics/overview");
         setStats({
           usersCount: data.usersCount ?? 0,
           dropsCount: data.dropsCount ?? 0,
