@@ -1,16 +1,27 @@
 {
-  "name": "memodrops",
-  "private": true,
+  "name": "memodrops-monorepo",
   "version": "0.1.0",
+  "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
+    "dev": "npm run dev --workspace backend",
     "dev:backend": "npm run dev --workspace backend",
     "dev:web": "npm run dev --workspace web",
-    "dev": "npm run dev:backend",
-    "build": "npm run build --workspaces",
-    "lint": "echo \"add lint step per app\""
-  }
+    "dev:ai": "npm run dev --workspace ai",
+    "build": "npm run build --workspace backend && npm run build --workspace web",
+    "build:backend": "npm run build --workspace backend",
+    "build:web": "npm run build --workspace web",
+    "start": "npm run start --workspace backend",
+    "start:web": "npm run start --workspace web",
+    "lint": "npm run lint --workspace backend || true && npm run lint --workspace web || true",
+    "migrate": "npm run migrate --workspace backend || true"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
 }
