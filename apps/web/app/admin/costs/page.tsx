@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { apiGet } from "../../../lib/api";
-import { mockCosts } from "../../../lib/mockData";
 import { CostsChart } from "../../../components/CostsChart";
 
 interface CostOverview {
@@ -20,10 +19,12 @@ interface CostOverview {
 export default function CostsPage() {
   const [costs, setCosts] = useState<CostOverview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
+      setError(null);
       try {
         const data = await apiGet("/admin/costs/real/overview");
         setCosts({
@@ -51,31 +52,7 @@ export default function CostsPage() {
         });
       } catch (e) {
         console.error("Erro ao buscar custos:", e);
-        // Usar dados mock como fallback
-        const mockData = mockCosts.real.overview;
-        setCosts({
-          totalCost: mockData.thisMonth,
-          currency: "BRL",
-          period: "Novembro 2024",
-          breakdown: [
-            {
-              service: "Railway",
-              cost: mockData.breakdown.railway.total,
-              breakdown: mockData.breakdown.railway
-            },
-            {
-              service: "Vercel",
-              cost: mockData.breakdown.vercel.total,
-              breakdown: mockData.breakdown.vercel
-            },
-            {
-              service: "OpenAI",
-              cost: mockData.breakdown.openai.total,
-              breakdown: mockData.breakdown.openai
-            }
-          ],
-          lastUpdated: new Date().toISOString()
-        });
+        setError("Erro ao carregar custos");
       } finally {
         setLoading(false);
       }
@@ -94,6 +71,12 @@ export default function CostsPage() {
 
       {loading && <p className="text-sm text-zinc-400">Carregando...</p>}
 
+      {error && (
+        <div className="rounded-lg border border-red-900 bg-red-950/40 p-4">
+          <p className="text-sm text-red-400">{error}</p>
+        </div>
+      )}
+
       {!loading && costs && (
         <>
           {/* Total de custos */}
@@ -102,7 +85,7 @@ export default function CostsPage() {
               <div>
                 <p className="text-sm text-zinc-400 mb-2">Custo Total Mensal</p>
                 <div className="text-4xl font-bold text-white">
-                  {costs.currency} {costs.totalCost.toFixed(2)}
+                  R$ {costs.totalCost.toFixed(2)}
                 </div>
               </div>
               <div className="text-right">

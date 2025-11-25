@@ -1,8 +1,9 @@
+// Use o proxy do Next.js em produção, backend direto em desenvolvimento
 const API_URL = 
   process.env.NEXT_PUBLIC_API_URL || 
   (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
     ? "http://localhost:3333"
-    : "https://backend-production-61d0.up.railway.app");
+    : "/api/proxy");
 
 function buildHeaders() {
   const headers: Record<string, string> = {
@@ -18,15 +19,19 @@ function buildHeaders() {
 }
 
 export async function apiGet(path: string) {
-  const res = await fetch(API_URL + path, {
-    method: "GET",
-    headers: buildHeaders(),
-    credentials: 'include'
-  });
-  if (!res.ok) {
-    throw new Error(`GET ${path} failed: ${res.status}`);
+  try {
+    const res = await fetch(API_URL + path, {
+      method: "GET",
+      headers: buildHeaders()
+    });
+    if (!res.ok) {
+      throw new Error(`GET ${path} failed: ${res.status}`);
+    }
+    return res.json();
+  } catch (error) {
+    console.error(`API Error on GET ${path}:`, error);
+    throw error;
   }
-  return res.json();
 }
 
 export async function apiPost(path: string, body: any) {
@@ -34,8 +39,7 @@ export async function apiPost(path: string, body: any) {
     const res = await fetch(API_URL + path, {
       method: "POST",
       headers: buildHeaders(),
-      body: JSON.stringify(body),
-      credentials: 'include'
+      body: JSON.stringify(body)
     });
     if (!res.ok) {
       const errorText = await res.text();
@@ -45,6 +49,44 @@ export async function apiPost(path: string, body: any) {
     return res.json();
   } catch (error) {
     console.error(`API Error on POST ${path}:`, error);
+    throw error;
+  }
+}
+
+export async function apiPut(path: string, body: any) {
+  try {
+    const res = await fetch(API_URL + path, {
+      method: "PUT",
+      headers: buildHeaders(),
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`PUT ${path} failed: ${res.status}`, errorText);
+      throw new Error(`PUT ${path} failed: ${res.status} - ${errorText}`);
+    }
+    return res.json();
+  } catch (error) {
+    console.error(`API Error on PUT ${path}:`, error);
+    throw error;
+  }
+}
+
+export async function apiDelete(path: string) {
+  try {
+    const res = await fetch(API_URL + path, {
+      method: "DELETE",
+      headers: buildHeaders()
+    });
+    if (!res.ok && res.status !== 204) {
+      throw new Error(`DELETE ${path} failed: ${res.status}`);
+    }
+    if (res.status === 204) {
+      return {};
+    }
+    return res.json();
+  } catch (error) {
+    console.error(`API Error on DELETE ${path}:`, error);
     throw error;
   }
 }

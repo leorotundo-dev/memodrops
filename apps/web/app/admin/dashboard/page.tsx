@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { apiGet } from "../../../lib/api";
-import { mockMetrics } from "../../../lib/mockData";
 import { StatCard } from "../../../components/ui/StatCard";
 import { FinancialSummary } from "../../../components/FinancialSummary";
 
@@ -22,10 +21,12 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [costs, setCosts] = useState<CostData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
+      setError(null);
       try {
         // Buscar métricas
         const metricsData = await apiGet("/admin/metrics/overview");
@@ -39,22 +40,12 @@ export default function DashboardPage() {
         // Buscar custos
         const costsData = await apiGet("/admin/costs/real/overview");
         setCosts({
-          totalCost: costsData.totalCost ?? 0,
-          currency: costsData.currency ?? "BRL"
+          totalCost: costsData.thisMonth ?? 0,
+          currency: "BRL"
         });
       } catch (e) {
         console.error("Erro ao buscar dados:", e);
-        // Usar dados mock como fallback
-        setStats({
-          usersCount: mockMetrics.overview.totalUsers,
-          dropsCount: mockMetrics.overview.totalDrops,
-          disciplinesCount: mockMetrics.overview.totalDisciplines,
-          reviewsToday: mockMetrics.overview.totalReviews
-        });
-        setCosts({
-          totalCost: mockMetrics.overview.costThisMonth,
-          currency: "BRL"
-        });
+        setError("Erro ao carregar dados do dashboard");
       } finally {
         setLoading(false);
       }
@@ -79,8 +70,14 @@ export default function DashboardPage() {
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-6">
           <p className="text-sm text-zinc-400 mb-2">Custo Total Mensal</p>
           <div className="text-3xl font-bold text-white">
-            {costs.currency} {costs.totalCost.toFixed(2)}
+            R$ {costs.totalCost.toFixed(2)}
           </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-lg border border-red-900 bg-red-950/40 p-4">
+          <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
 

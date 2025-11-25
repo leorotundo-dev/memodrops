@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { apiGet } from "../../../lib/api";
-import { mockBlueprints } from "../../../lib/mockData";
 import { Table } from "../../../components/ui/Table";
 
 interface Blueprint {
@@ -28,11 +27,7 @@ export default function BlueprintsPage() {
         setItems(data?.items ?? data ?? []);
       } catch (e) {
         console.error("Erro ao buscar blueprints:", e);
-        // Usar dados mock como fallback
-        setItems(mockBlueprints.blueprints);
-        if (mockBlueprints.blueprints.length === 0) {
-          setError(null);
-        }
+        setError("Erro ao carregar blueprints");
       } finally {
         setLoading(false);
       }
