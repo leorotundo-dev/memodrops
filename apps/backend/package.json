@@ -9,6 +9,8 @@
     "build": "tsc --project tsconfig.json",
     "start": "node dist/index.js",
     "job:harvest:test": "ts-node --transpile-only src/jobs/harvest-test.ts",
+    "job:process-harvest": "ts-node --transpile-only src/jobs/process-harvest.ts",
+    "job:generate-drops": "ts-node --transpile-only src/jobs/generate-drops.ts",
     "db:migrate": "ts-node --transpile-only src/db/migrate.ts"
   },
   "dependencies": {
