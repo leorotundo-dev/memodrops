@@ -11,8 +11,14 @@ export async function buildServer() {
   });
 
   await app.register(cors, {
-    origin: true,
-    credentials: true
+    origin: [
+      'https://memodrops-dashboard-1bj6g09lt-memo-drops.vercel.app',
+      'https://memodrops-dashboard-*.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
   });
 
   await app.register(jwt, {
