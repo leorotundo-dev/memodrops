@@ -10,7 +10,6 @@
   "dependencies": {
     "next": "14.2.4",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0",
-    "@memodrops/shared": "0.1.0"
+    "react-dom": "^18.3.0"
   }
 }
