@@ -29,13 +29,20 @@ export async function apiGet(path: string) {
 }
 
 export async function apiPost(path: string, body: any) {
-  const res = await fetch(API_URL + path, {
-    method: "POST",
-    headers: buildHeaders(),
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    throw new Error(`POST ${path} failed: ${res.status}`);
+  try {
+    const res = await fetch(API_URL + path, {
+      method: "POST",
+      headers: buildHeaders(),
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`POST ${path} failed: ${res.status}`, errorText);
+      throw new Error(`POST ${path} failed: ${res.status} - ${errorText}`);
+    }
+    return res.json();
+  } catch (error) {
+    console.error(`API Error on POST ${path}:`, error);
+    throw error;
   }
-  return res.json();
 }
