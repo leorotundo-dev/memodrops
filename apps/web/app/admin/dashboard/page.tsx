@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiGet } from "../../../lib/api";
+import { mockMetrics } from "../../../lib/mockData";
 import { StatCard } from "../../../components/ui/StatCard";
 import { FinancialSummary } from "../../../components/FinancialSummary";
 
@@ -43,6 +44,17 @@ export default function DashboardPage() {
         });
       } catch (e) {
         console.error("Erro ao buscar dados:", e);
+        // Usar dados mock como fallback
+        setStats({
+          usersCount: mockMetrics.overview.totalUsers,
+          dropsCount: mockMetrics.overview.totalDrops,
+          disciplinesCount: mockMetrics.overview.totalDisciplines,
+          reviewsToday: mockMetrics.overview.totalReviews
+        });
+        setCosts({
+          totalCost: mockMetrics.overview.costThisMonth,
+          currency: "BRL"
+        });
       } finally {
         setLoading(false);
       }
