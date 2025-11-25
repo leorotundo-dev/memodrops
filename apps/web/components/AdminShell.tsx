@@ -9,6 +9,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("memodrops_token") : null;
@@ -17,12 +18,29 @@ export function AdminShell({ children }: { children: ReactNode }) {
     }
   }, [router, pathname]);
 
+  // Detectar se é mobile e fechar sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Fechar sidebar ao navegar em mobile
   useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
+    if (isMobile) {
       setSidebarOpen(false);
     }
-  }, [pathname]);
+  }, [pathname, isMobile]);
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-zinc-50">
@@ -42,10 +60,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <div className="text-sm font-semibold">MemoDrops Admin</div>
       </div>
 
-      {/* Sidebar Overlay */}
-      {sidebarOpen && (
+      {/* Sidebar Overlay - Apenas em mobile */}
+      {sidebarOpen && isMobile && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-30 top-12"
+          className="fixed inset-0 bg-black/50 z-30 top-12"
           onClick={() => setSidebarOpen(false)}
         />
       )}
