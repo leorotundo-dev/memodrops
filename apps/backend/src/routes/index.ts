@@ -6,6 +6,7 @@ export async function registerRoutes(app: FastifyInstance) {
   app.log.info('🔧 Registrando rotas...');
   
   // Health check
+  app.log.info('🔍 Registrando rota GET / ...');
   app.get('/', async () => {
     return {
       status: 'ok',
