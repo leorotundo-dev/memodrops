@@ -1,9 +1,10 @@
 import { FastifyInstance } from 'fastify';
+import fp from 'fastify-plugin';
 import { z } from 'zod';
 import { createUser, findUserByEmail, findUserById } from '../repositories/userRepository';
 import { env } from '../env';
 
-export async function authRoutes(app: FastifyInstance) {
+async function routes(app: FastifyInstance) {
   // Register
   app.post('/auth/register', async (request, reply) => {
     const bodySchema = z.object({
@@ -113,3 +114,5 @@ export async function authRoutes(app: FastifyInstance) {
     }
   });
 }
+
+export const authRoutes = fp(routes);

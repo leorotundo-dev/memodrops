@@ -1,13 +1,15 @@
 import { FastifyInstance } from 'fastify';
+import fp from 'fastify-plugin';
 
-// Mock data - Stage 2 não especifica planos, mas mantendo compatibilidade
 const PLANS = [
   { id: 'free', name: 'Free', price: 0 },
   { id: 'pro', name: 'Pro', price: 9.99 }
 ];
 
-export async function plansRoutes(app: FastifyInstance) {
+async function routes(app: FastifyInstance) {
   app.get('/plans', async () => {
     return { plans: PLANS };
   });
 }
+
+export const plansRoutes = fp(routes);
