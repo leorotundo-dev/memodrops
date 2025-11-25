@@ -12,7 +12,7 @@ COPY apps/ai/package.json ./apps/ai/
 COPY packages/shared/package.json ./packages/shared/
 
 # Install dependencies
-RUN npm install --include=workspace-root
+RUN npm ci --include=workspace-root
 
 # Copy source code
 COPY . .
