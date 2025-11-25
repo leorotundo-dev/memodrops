@@ -30,6 +30,23 @@ export async function adminDebugRoutes(app: FastifyInstance) {
       return reply.status(500).send({ success: false, error: 'Erro ao buscar blueprints' });
     }
   });
+
+  app.get('/admin/debug/blueprints/:id', async (req, reply) => {
+    try {
+      const { id } = req.params as { id: string };
+      const { rows } = await query<any>(
+        `SELECT id, harvest_item_id, exam_code, banca, cargo, disciplina, created_at, updated_at FROM exam_blueprints WHERE id = $1 LIMIT 1`,
+        [id]
+      );
+      if (rows.length === 0) {
+        return reply.status(404).send({ success: false, error: 'Blueprint não encontrado' });
+      }
+      return rows[0];
+    } catch (err) {
+      console.error('[admin-debug] Erro ao buscar blueprint:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar blueprint' });
+    }
+  });
 }
 
 /**
@@ -45,6 +62,23 @@ export async function adminHarvestRoutes(app: FastifyInstance) {
     } catch (err) {
       console.error('[admin-harvest] Erro:', err);
       return reply.status(500).send({ success: false, error: 'Erro ao buscar harvest items' });
+    }
+  });
+
+  app.get('/admin/harvest/items/:id', async (req, reply) => {
+    try {
+      const { id } = req.params as { id: string };
+      const { rows } = await query<any>(
+        `SELECT id, source, url, status, created_at, updated_at FROM harvest_items WHERE id = $1 LIMIT 1`,
+        [id]
+      );
+      if (rows.length === 0) {
+        return reply.status(404).send({ success: false, error: 'Harvest item não encontrado' });
+      }
+      return rows[0];
+    } catch (err) {
+      console.error('[admin-harvest] Erro ao buscar harvest item:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar harvest item' });
     }
   });
 }
@@ -73,6 +107,23 @@ export async function adminRagRoutes(app: FastifyInstance) {
       return reply.status(500).send({ success: false, error: 'Erro ao buscar RAG blocks' });
     }
   });
+
+  app.get('/admin/rag/blocks/:id', async (req, reply) => {
+    try {
+      const { id } = req.params as { id: string };
+      const { rows } = await query<any>(
+        `SELECT id, disciplina, topic_code, summary, created_at, updated_at FROM rag_blocks WHERE id = $1 LIMIT 1`,
+        [id]
+      );
+      if (rows.length === 0) {
+        return reply.status(404).send({ success: false, error: 'RAG block não encontrado' });
+      }
+      return rows[0];
+    } catch (err) {
+      console.error('[admin-rag] Erro ao buscar RAG block:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar RAG block' });
+    }
+  });
 }
 
 export async function adminRagRoutesRegister(app: FastifyInstance) {
@@ -94,10 +145,23 @@ export async function adminUsersRoutes(app: FastifyInstance) {
       return reply.status(500).send({ success: false, error: 'Erro ao buscar usuários' });
     }
   });
-}
 
-export async function adminUsersRoutesRegister(app: FastifyInstance) {
-  await adminUsersRoutes(app);
+  app.get('/admin/users/:id', async (req, reply) => {
+    try {
+      const { id } = req.params as { id: string };
+      const { rows } = await query<any>(
+        `SELECT id, email, name, created_at, updated_at FROM users WHERE id = $1 LIMIT 1`,
+        [id]
+      );
+      if (rows.length === 0) {
+        return reply.status(404).send({ success: false, error: 'Usuário não encontrado' });
+      }
+      return rows[0];
+    } catch (err) {
+      console.error('[admin-users] Erro ao buscar usuário:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar usuário' });
+    }
+  });
 }
 
 export async function adminMetricsRoutes(app: FastifyInstance) {
