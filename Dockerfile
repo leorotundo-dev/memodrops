@@ -1,62 +1,25 @@
-# Dockerfile otimizado para monorepo npm workspaces - Backend only
-# Baseado em boas práticas para Railway
+# Use Node.js 18
+# Build timestamp: 2025-11-24T20:59:00Z
+FROM node:18-alpine
 
-# ============================================
-# STAGE 1: BUILDER
-# ============================================
-FROM node:22-alpine AS builder
-
+# Set working directory
 WORKDIR /app
 
-# 1. Copiar apenas os package.json necessários
-COPY package.json package-lock.json ./
-COPY packages/shared/package.json ./packages/shared/
+# Copy package files
+COPY package.json package-lock.json* ./
 COPY apps/backend/package.json ./apps/backend/
 
-# 2. Instalar dependências (npm vai resolver workspaces automaticamente)
-RUN npm ci --prefer-offline --no-audit
+# Install dependencies
+RUN npm install --include=workspace-root
 
-# 3. Copiar apenas código-fonte necessário
-COPY packages/shared/src ./packages/shared/src
-COPY packages/shared/tsconfig.json ./packages/shared/
-COPY apps/backend/src ./apps/backend/src
-COPY apps/backend/tsconfig.json ./apps/backend/
+# Copy source code
+COPY . .
 
-# 4. Build do shared (dependência do backend)
-RUN npm run build --workspace=@memodrops/shared
-
-# 5. Build do backend
+# Build backend
 RUN npm run build --workspace=@memodrops/backend
 
-# ============================================
-# STAGE 2: RUNTIME
-# ============================================
-FROM node:22-alpine
+# Expose port
+EXPOSE 3000
 
-WORKDIR /app
-
-# 1. Copiar apenas package.json (não node_modules)
-COPY package.json package-lock.json ./
-COPY packages/shared/package.json ./packages/shared/
-COPY apps/backend/package.json ./apps/backend/
-
-# 2. Instalar APENAS dependências de produção
-RUN npm ci --prefer-offline --no-audit --omit=dev
-
-# 3. Copiar apenas os arquivos compilados do builder
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
-COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
-
-# 4. Variáveis de ambiente padrão
-ENV NODE_ENV=production
-ENV PORT=3333
-
-# 5. Expor porta
-EXPOSE 3333
-
-# 6. Health check (opcional, mas recomendado)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3333/', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-# 7. Executar backend
-CMD ["node", "apps/backend/dist/index.js"]
+# Start backend
+CMD ["npm", "run", "start", "--workspace=@memodrops/backend"]
