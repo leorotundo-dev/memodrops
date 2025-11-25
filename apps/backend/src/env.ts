@@ -16,4 +16,25 @@ const envSchema = z.object({
   VERCEL_TOKEN: z.string().optional()
 });
 
-export const env = envSchema.parse(process.env);
+// Valores fallback para quando variáveis não estão configuradas
+const getFallbackEnv = () => {
+  const fallback: Record<string, string> = {};
+  
+  // Railway tokens - usar do env ou fallback
+  if (!process.env.RAILWAY_ACCOUNT_TOKEN) {
+    fallback.RAILWAY_ACCOUNT_TOKEN = '7175f3b9-ff3e-4b44-a74a-00cb928f721a';
+  }
+  if (!process.env.RAILWAY_PROJECT_ID) {
+    fallback.RAILWAY_PROJECT_ID = 'e0ca0841-18bc-4c48-942e-d90a6b725a5b';
+  }
+  if (!process.env.VERCEL_TOKEN) {
+    fallback.VERCEL_TOKEN = 'L48oHd8B50rWzbuWW4ry6NP9';
+  }
+  
+  return fallback;
+};
+
+export const env = envSchema.parse({
+  ...process.env,
+  ...getFallbackEnv()
+});
