@@ -1,7 +1,11 @@
 import { buildServer } from './server';
 import { env } from './env';
+import { runMigrations } from './migrate';
 
 async function main() {
+  // Executar migrações
+  await runMigrations();
+  
   const app = await buildServer();
 
   try {
