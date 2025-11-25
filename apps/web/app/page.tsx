@@ -1,19 +1,19 @@
-import { PLANS } from '@/lib/plans';
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
-  return (
-    <main style={{ padding: 24, fontFamily: 'system-ui' }}>
-      <h1>MemoDrops Web – v0.1</h1>
-      <p>Esqueleto inicial do frontend web.</p>
+  const router = useRouter();
 
-      <h2 style={{ marginTop: 24 }}>Planos</h2>
-      <ul>
-        {PLANS.map(plan => (
-          <li key={plan.id}>
-            <strong>{plan.name}</strong> – R$ {(plan.priceCents / 100).toFixed(2).replace('.', ',')}
-          </li>
-        ))}
-      </ul>
-    </main>
-  );
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("memodrops_token") : null;
+    if (token) {
+      router.replace("/admin/dashboard");
+    } else {
+      router.replace("/login");
+    }
+  }, [router]);
+
+  return null;
 }
