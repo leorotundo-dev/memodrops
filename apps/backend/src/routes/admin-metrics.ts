@@ -15,6 +15,79 @@ interface DailyMetricRow {
 /**
  * Rotas de Métricas e Analytics
  */
+/**
+ * Rotas de Debug de Blueprints
+ */
+export async function adminDebugRoutes(app: FastifyInstance) {
+  app.get('/admin/debug/blueprints', async (req, reply) => {
+    try {
+      const { rows } = await query<any>(
+        `SELECT id, title, description, created_at FROM blueprints LIMIT 100`
+      );
+      return { success: true, items: rows };
+    } catch (err) {
+      console.error('[admin-debug] Erro:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar blueprints' });
+    }
+  });
+}
+
+/**
+ * Rotas de Harvest
+ */
+export async function adminHarvestRoutes(app: FastifyInstance) {
+  app.get('/admin/harvest/items', async (req, reply) => {
+    try {
+      const { rows } = await query<any>(
+        `SELECT id, title, description, created_at FROM harvest_items LIMIT 100`
+      );
+      return { success: true, items: rows };
+    } catch (err) {
+      console.error('[admin-harvest] Erro:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar harvest items' });
+    }
+  });
+}
+
+/**
+ * Rotas de RAG
+ */
+export async function adminRagRoutes(app: FastifyInstance) {
+  app.get('/admin/rag/blocks', async (req, reply) => {
+    try {
+      const { disciplina = 'Geral', topicCode = '*' } = req.query as any;
+      const { rows } = await query<any>(
+        `SELECT id, title, content, created_at FROM rag_blocks 
+         WHERE (disciplina = $1 OR $1 = 'Geral') 
+         AND (topic_code = $2 OR $2 = '*')
+         LIMIT 100`,
+        [disciplina, topicCode]
+      );
+      return { success: true, items: rows };
+    } catch (err) {
+      console.error('[admin-rag] Erro:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar RAG blocks' });
+    }
+  });
+}
+
+/**
+ * Rotas de Usuários
+ */
+export async function adminUsersRoutes(app: FastifyInstance) {
+  app.get('/admin/users', async (req, reply) => {
+    try {
+      const { rows } = await query<any>(
+        `SELECT id, email, name, created_at FROM users LIMIT 100`
+      );
+      return { success: true, items: rows };
+    } catch (err) {
+      console.error('[admin-users] Erro:', err);
+      return reply.status(500).send({ success: false, error: 'Erro ao buscar usuários' });
+    }
+  });
+}
+
 export async function adminMetricsRoutes(app: FastifyInstance) {
   /**
    * GET /admin/metrics/qa/summary
