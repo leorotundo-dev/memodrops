@@ -1,27 +1,27 @@
 {
-  "name": "backend",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@memodrops/backend",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc --project tsconfig.json",
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "fastify": "^4.28.0",
     "@fastify/cors": "^9.0.0",
-    "@fastify/jwt": "^9.0.0",
-    "fastify-plugin": "^4.5.0",
-    "dotenv": "^16.4.0",
-    "zod": "^3.23.0",
-    "pg": "^8.11.0",
+    "@fastify/jwt": "^6.0.0",
+    "@memodrops/shared": "*",
     "bcryptjs": "^2.4.3",
-    "@memodrops/shared": "0.1.0"
+    "dotenv": "^16.4.0",
+    "fastify": "^4.25.0",
+    "pg": "^8.11.0",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@types/bcryptjs": "^2.4.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/pg": "^8.15.6",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.0.0"
   }
 }
