@@ -12,6 +12,8 @@ import { adminPlanRoutes } from './admin-plan';
 import { dailyPlanRoutes } from './daily-plan';
 import { adminLearnRoutes } from './admin-learn';
 import { learnRoutes } from './learn';
+import { adminDebugRoutes } from './admin-debug';
+import { adminMetricsRoutes } from './admin-metrics';
 import { jobsRoutes } from './jobs';
 
 export async function registerRoutes(app: FastifyInstance) {
@@ -28,5 +30,7 @@ export async function registerRoutes(app: FastifyInstance) {
   app.register(dailyPlanRoutes);
   app.register(adminLearnRoutes);
   app.register(learnRoutes);
+  app.register(adminDebugRoutes);
+  app.register(adminMetricsRoutes);
   app.register(jobsRoutes);
 }
