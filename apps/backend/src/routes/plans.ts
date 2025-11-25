@@ -7,7 +7,7 @@ const PLANS = [
 ];
 
 export async function plansRoutes(app: FastifyInstance) {
-  app.get('/', async () => {
+  app.get('/plans', async () => {
     return { plans: PLANS };
   });
 }
