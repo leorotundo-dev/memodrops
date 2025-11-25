@@ -7,7 +7,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().optional(),
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
-    .default('development')
+    .default('development'),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_BASE_URL: z.string().url().default('https://api.openai.com/v1'),
+  OPENAI_MODEL: z.string().default('gpt-4o-mini')
 });
 
 export const env = envSchema.parse(process.env);
