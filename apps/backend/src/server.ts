@@ -19,8 +19,13 @@ export async function buildServer() {
     secret: env.JWT_SECRET
   });
 
+  app.log.info('🔌 Registrando plugins...');
   await registerPlugins(app);
+  app.log.info('✅ Plugins registrados!');
+  
+  app.log.info('🛣️  Iniciando registro de rotas...');
   await registerRoutes(app);
+  app.log.info('✅ Registro de rotas concluído!');
 
   return app;
 }
