@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm install && npm run build:web",
   "installCommand": "npm install",
-  "outputDirectory": ".next",
+  "outputDirectory": "apps/web/.next",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://backend-production-61d0.up.railway.app"
   }
