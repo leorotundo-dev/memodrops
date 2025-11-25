@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { env } from '../env';
 
 /**
  * Rotas de Custos Reais
@@ -11,11 +12,17 @@ export async function adminCostsRealRoutes(app: FastifyInstance) {
    */
   app.get('/admin/costs/real/overview', async (req, reply) => {
     try {
+      console.log('[COSTS] Fetching overview...');
+      
       const [railwayData, vercelData, openaiData] = await Promise.all([
         getRailwayCosts(),
         getVercelCosts(),
         getOpenAICosts()
       ]);
+
+      console.log('[COSTS] Railway:', railwayData);
+      console.log('[COSTS] Vercel:', vercelData);
+      console.log('[COSTS] OpenAI:', openaiData);
 
       const breakdown = [
         {
@@ -52,7 +59,7 @@ export async function adminCostsRealRoutes(app: FastifyInstance) {
         lastUpdated: new Date().toISOString()
       };
     } catch (error: any) {
-      console.error('[admin-costs-real] Erro:', error);
+      console.error('[COSTS] Error:', error);
       return reply.status(500).send({
         error: 'Failed to get costs overview',
         message: error.message
@@ -75,7 +82,7 @@ export async function adminCostsRealRoutes(app: FastifyInstance) {
         lastUpdated: new Date().toISOString()
       };
     } catch (error: any) {
-      console.error('[admin-costs-real] Erro Railway:', error);
+      console.error('[COSTS] Railway error:', error);
       return reply.status(500).send({
         error: 'Failed to get Railway costs',
         message: error.message
@@ -98,7 +105,7 @@ export async function adminCostsRealRoutes(app: FastifyInstance) {
         lastUpdated: new Date().toISOString()
       };
     } catch (error: any) {
-      console.error('[admin-costs-real] Erro Vercel:', error);
+      console.error('[COSTS] Vercel error:', error);
       return reply.status(500).send({
         error: 'Failed to get Vercel costs',
         message: error.message
@@ -121,7 +128,7 @@ export async function adminCostsRealRoutes(app: FastifyInstance) {
         lastUpdated: new Date().toISOString()
       };
     } catch (error: any) {
-      console.error('[admin-costs-real] Erro OpenAI:', error);
+      console.error('[COSTS] OpenAI error:', error);
       return reply.status(500).send({
         error: 'Failed to get OpenAI costs',
         message: error.message
@@ -135,9 +142,11 @@ export async function adminCostsRealRoutes(app: FastifyInstance) {
  */
 async function getRailwayCosts() {
   try {
-    const token = process.env.RAILWAY_ACCOUNT_TOKEN;
+    const token = env.RAILWAY_ACCOUNT_TOKEN;
+    console.log('[Railway] Token configured:', !!token);
+    
     if (!token) {
-      console.log('[Railway] Token não configurado');
+      console.log('[Railway] No token, returning mock data');
       return { 
         total: 18.14, 
         breakdown: { compute: 9, storage: 5, network: 2, database: 2.14 },
@@ -145,7 +154,7 @@ async function getRailwayCosts() {
       };
     }
 
-    console.log('[Railway] Buscando custos com token');
+    console.log('[Railway] Fetching costs with token');
     const response = await fetch('https://api.railway.app/graphql', {
       method: 'POST',
       headers: {
@@ -180,13 +189,14 @@ async function getRailwayCosts() {
     });
 
     if (!response.ok) {
+      console.log('[Railway] API error:', response.status);
       throw new Error(`Railway API error: ${response.status}`);
     }
 
     const data = await response.json() as any;
     
     if (data.errors) {
-      console.log('[Railway] Erro na resposta:', data.errors);
+      console.log('[Railway] GraphQL error:', data.errors);
       throw new Error(data.errors[0]?.message || 'Railway API error');
     }
 
@@ -199,6 +209,8 @@ async function getRailwayCosts() {
         }
       });
     }
+
+    console.log('[Railway] Total services:', totalServices);
 
     // Estimativa: $5 por serviço
     const total = Math.max(totalServices * 5, 18.14);
@@ -214,7 +226,7 @@ async function getRailwayCosts() {
       status: 'success'
     };
   } catch (error: any) {
-    console.error('[Railway] Erro:', error.message);
+    console.error('[Railway] Error:', error.message);
     // Retornar dados mockados se houver erro
     return { 
       total: 18.14, 
@@ -226,9 +238,11 @@ async function getRailwayCosts() {
 
 async function getVercelCosts() {
   try {
-    const token = process.env.VERCEL_TOKEN;
+    const token = env.VERCEL_TOKEN;
+    console.log('[Vercel] Token configured:', !!token);
+    
     if (!token) {
-      console.log('[Vercel] Token não configurado');
+      console.log('[Vercel] No token, returning mock data');
       return { 
         total: 0, 
         breakdown: { bandwidth: 0, builds: 0, functions: 0 },
@@ -236,7 +250,7 @@ async function getVercelCosts() {
       };
     }
 
-    console.log('[Vercel] Buscando custos com token');
+    console.log('[Vercel] Fetching costs with token');
     const response = await fetch('https://api.vercel.com/v1/projects', {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -244,6 +258,7 @@ async function getVercelCosts() {
     });
 
     if (!response.ok) {
+      console.log('[Vercel] API error:', response.status);
       throw new Error(`Vercel API error: ${response.status}`);
     }
 
@@ -251,6 +266,8 @@ async function getVercelCosts() {
     
     // Vercel plano gratuito não tem custos
     const projectCount = data.projects?.length || 0;
+    console.log('[Vercel] Projects count:', projectCount);
+    
     const total = projectCount > 0 ? 0 : 0; // Plano gratuito
 
     return {
@@ -263,7 +280,7 @@ async function getVercelCosts() {
       status: 'success'
     };
   } catch (error: any) {
-    console.error('[Vercel] Erro:', error.message);
+    console.error('[Vercel] Error:', error.message);
     return { 
       total: 0, 
       breakdown: { bandwidth: 0, builds: 0, functions: 0 },
@@ -274,9 +291,11 @@ async function getVercelCosts() {
 
 async function getOpenAICosts() {
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = env.OPENAI_API_KEY;
+    console.log('[OpenAI] API Key configured:', !!apiKey);
+    
     if (!apiKey) {
-      console.log('[OpenAI] API Key não configurada');
+      console.log('[OpenAI] No API key, returning mock data');
       return { 
         total: 0, 
         breakdown: {},
@@ -284,7 +303,7 @@ async function getOpenAICosts() {
       };
     }
 
-    console.log('[OpenAI] Buscando custos com API Key');
+    console.log('[OpenAI] OpenAI API does not provide cost endpoint');
     
     // OpenAI não fornece endpoint de custos via API
     // Retornar 0 pois não há dados disponíveis
@@ -294,7 +313,7 @@ async function getOpenAICosts() {
       status: 'success'
     };
   } catch (error: any) {
-    console.error('[OpenAI] Erro:', error.message);
+    console.error('[OpenAI] Error:', error.message);
     return { 
       total: 0, 
       breakdown: {},
