@@ -6,7 +6,6 @@ import disciplinesRoutes from './disciplines';
 import dropsRoutes from './drops';
 import trailRoutes from './trail';
 import srsRoutes from './srs';
-import adminRagRoutes from './admin-rag';
 import { adminAIRoutes } from './admin-ai';
 import { adminPlanRoutes } from './admin-plan';
 import { dailyPlanRoutes } from './daily-plan';
@@ -24,7 +23,6 @@ export async function registerRoutes(app: FastifyInstance) {
   app.register(dropsRoutes);
   app.register(trailRoutes);
   app.register(srsRoutes);
-  app.register(adminRagRoutes);
   app.register(adminAIRoutes);
   app.register(adminPlanRoutes);
   app.register(dailyPlanRoutes);
