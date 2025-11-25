@@ -28,7 +28,12 @@ async function main() {
   console.log(html.slice(0, 500));
 }
 
-main().catch((err) => {
-  console.error('[harvest] Erro no job:', err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error('[harvest] Erro no job:', err);
+    process.exit(1);
+  })
+  .finally(async () => {
+    // Fechar conexão com banco se necessário
+    console.log('[harvest] Job finalizado');
+  });
