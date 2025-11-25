@@ -14,6 +14,7 @@
     "job:extract-blueprints": "ts-node --transpile-only src/jobs/extract-blueprints.ts",
     "job:generate-drops-v2": "ts-node --transpile-only src/jobs/generate-drops-v2.ts",
     "job:rag-feeder": "ts-node --transpile-only src/jobs/rag-feeder.ts",
+    "job:daily-plan-preview": "ts-node --transpile-only src/jobs/daily-plan-preview.ts",
     "db:migrate": "ts-node --transpile-only src/db/migrate.ts"
   },
   "dependencies": {
