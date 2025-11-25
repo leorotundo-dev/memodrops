@@ -4,20 +4,20 @@ import { plansRoutes } from './plans';
 import { authRoutes } from './auth';
 
 export async function registerRoutes(app: FastifyInstance) {
-  console.log('🔧 Registrando rotas...');
+  app.log.info('🔧 Registrando rotas...');
   
-  console.log('✅ Registrando health routes');
+  app.log.info('✅ Registrando health routes');
   await app.register(healthRoutes);
   
-  console.log('✅ Registrando plans routes');
+  app.log.info('✅ Registrando plans routes');
   await app.register(plansRoutes);
   
-  console.log('✅ Registrando auth routes');
+  app.log.info('✅ Registrando auth routes');
   await app.register(authRoutes);
   
-  console.log('🎉 Todas as rotas registradas com sucesso!');
+  app.log.info('🎉 Todas as rotas registradas com sucesso!');
   
   // Log todas as rotas registradas
-  console.log('📋 Rotas disponíveis:');
+  app.log.info('📋 Rotas disponíveis:');
   app.printRoutes();
 }
