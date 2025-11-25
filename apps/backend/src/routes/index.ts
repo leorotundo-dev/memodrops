@@ -7,10 +7,10 @@ import { dropsRoutes } from './drops';
 import { trailRoutes } from './trail';
 
 export async function registerRoutes(app: FastifyInstance) {
-  app.register(healthRoutes);
-  app.register(plansRoutes);
-  app.register(authRoutes);
-  app.register(disciplineRoutes);
-  app.register(dropsRoutes);
-  app.register(trailRoutes);
+  await app.register(healthRoutes);
+  await app.register(plansRoutes);
+  await app.register(authRoutes);
+  await app.register(disciplineRoutes);
+  await app.register(dropsRoutes);
+  await app.register(trailRoutes);
 }
