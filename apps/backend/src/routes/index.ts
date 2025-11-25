@@ -13,6 +13,7 @@ import { adminLearnRoutes } from './admin-learn';
 import { learnRoutes } from './learn';
 import { adminDebugRoutes } from './admin-debug';
 import { adminMetricsRoutes, adminHarvestRoutes, adminRagRoutes, adminUsersRoutes } from './admin-metrics';
+import { adminCostsRealRoutes } from './admin-costs-real';
 import { jobsRoutes } from './jobs';
 
 export async function registerRoutes(app: FastifyInstance) {
@@ -33,5 +34,6 @@ export async function registerRoutes(app: FastifyInstance) {
   app.register(adminHarvestRoutes);
   app.register(adminRagRoutes);
   app.register(adminUsersRoutes);
+  app.register(adminCostsRealRoutes);
   app.register(jobsRoutes);
 }
