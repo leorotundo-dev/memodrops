@@ -79,3 +79,16 @@ CREATE TABLE IF NOT EXISTS rag_blocks (
 );
 
 CREATE INDEX IF NOT EXISTS idx_rag_blocks_disciplina_topic ON rag_blocks(disciplina, topic_code);
+
+-- Stage 13 - Cache de Drops
+
+CREATE TABLE IF NOT EXISTS drop_cache (
+  id SERIAL PRIMARY KEY,
+  cache_key TEXT UNIQUE NOT NULL,
+  blueprint_id INTEGER NOT NULL,
+  topic_code TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_drop_cache_blueprint_topic ON drop_cache(blueprint_id, topic_code);
