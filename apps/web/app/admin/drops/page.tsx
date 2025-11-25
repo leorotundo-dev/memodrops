@@ -21,7 +21,7 @@ export default function DropsPage() {
       setLoading(true);
       try {
         const data = await apiGet("/drops");
-        setDrops(data?.items ?? data ?? []);
+        setDrops(data?.drops ?? data?.items ?? data ?? []);
       } catch (e) {
         console.error("Erro ao buscar drops:", e);
       } finally {
