@@ -10,7 +10,10 @@ const envSchema = z.object({
     .default('development'),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_BASE_URL: z.string().url().default('https://api.openai.com/v1'),
-  OPENAI_MODEL: z.string().default('gpt-4o-mini')
+  OPENAI_MODEL: z.string().default('gpt-4o-mini'),
+  RAILWAY_ACCOUNT_TOKEN: z.string().optional(),
+  RAILWAY_PROJECT_ID: z.string().optional(),
+  VERCEL_TOKEN: z.string().optional()
 });
 
 export const env = envSchema.parse(process.env);
