@@ -1,86 +1,44 @@
-"use client";
-
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { apiGet } from "../../../../lib/api";
 
 interface UserDetail {
   id: string;
-  name?: string;
   email: string;
-  plan?: string;
-  status?: string;
-  role?: string;
-  avatar?: string;
+  name?: string;
   bio?: string;
-  drops_created?: number;
-  reviews_count?: number;
-  createdAt?: string;
+  avatar_url?: string;
+  role?: string;
+  status?: string;
+  plan?: string;
   created_at?: string;
-  updatedAt?: string;
   updated_at?: string;
-  last_login?: string;
-  dropsCompleted?: number;
-  dropsInProgress?: number;
-  averageScore?: number;
-  totalReviews?: number;
+  stats?: {
+    drops?: number;
+    reviews?: number;
+    disciplines?: number;
+  };
   metadata?: Record<string, any>;
 }
 
-export default function UserDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const userId = params.id as string;
-
-  const [user, setUser] = useState<UserDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await apiGet(`/admin/users/${userId}`);
-        setUser(data);
-      } catch (e) {
-        console.error("Erro ao buscar usuário:", e);
-        setError("Erro ao carregar detalhes do usuário");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [userId]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <p className="text-sm text-zinc-400">Carregando...</p>
-      </div>
-    );
+async function getUserDetail(id: string): Promise<UserDetail | null> {
+  try {
+    const data = await apiGet(`/admin/users/${id}`);
+    return data;
+  } catch (e) {
+    console.error("Erro ao buscar usuário:", e);
+    return null;
   }
+}
 
-  if (error || !user) {
+export default async function UserDetailPage({ params }: { params: { id: string } }) {
+  const user = await getUserDetail(params.id);
+
+  if (!user) {
     return (
       <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <div className="rounded-lg border border-red-900 bg-red-950/40 p-4">
-          <p className="text-sm text-red-400">{error || "Usuário não encontrado"}</p>
-        </div>
+        <h1 className="text-2xl font-semibold">Usuário não encontrado</h1>
+        <p className="text-sm text-zinc-400">O usuário que você está procurando não existe ou foi removido.</p>
       </div>
     );
   }
@@ -88,76 +46,38 @@ export default function UserDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300 mb-4"
-        >
-          ← Voltar
-        </button>
-        <div className="flex items-center gap-4">
-          {user.avatar && (
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-16 h-16 rounded-full bg-zinc-700"
-            />
-          )}
-          <div>
-            <h1 className="text-3xl font-bold text-white">{user.name || user.email}</h1>
-            <p className="text-sm text-zinc-400">{user.email}</p>
-          </div>
+      <div className="flex items-start gap-4">
+        {user.avatar_url && (
+          <img
+            src={user.avatar_url}
+            alt={user.name}
+            className="w-16 h-16 rounded-lg object-cover"
+          />
+        )}
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">{user.name || user.email}</h1>
+          <p className="text-sm text-zinc-400">{user.email}</p>
         </div>
       </div>
 
-      {/* Status, Plano e Role */}
+      {/* Status e Plano */}
       <div className="grid gap-4 md:grid-cols-3">
-        {user.plan && (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Plano</p>
-            <p className="text-lg font-bold text-white capitalize">{user.plan}</p>
-          </div>
-        )}
         {user.status && (
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
             <p className="text-xs text-zinc-500 mb-1">Status</p>
-            <p className="text-lg font-bold text-white capitalize">{user.status}</p>
+            <p className="text-sm font-medium text-zinc-300 capitalize">{user.status}</p>
+          </div>
+        )}
+        {user.plan && (
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
+            <p className="text-xs text-zinc-500 mb-1">Plano</p>
+            <p className="text-sm font-medium text-zinc-300 capitalize">{user.plan}</p>
           </div>
         )}
         {user.role && (
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Função</p>
-            <p className="text-lg font-bold text-white capitalize">{user.role}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Estatísticas */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {(user.dropsCompleted !== undefined || user.drops_created !== undefined) && (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Drops Criados</p>
-            <p className="text-2xl font-bold text-white">{user.drops_created ?? user.dropsCompleted ?? 0}</p>
-          </div>
-        )}
-        {user.dropsInProgress !== undefined && (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Em Progresso</p>
-            <p className="text-2xl font-bold text-white">{user.dropsInProgress}</p>
-          </div>
-        )}
-        {user.averageScore !== undefined && (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Nota Média</p>
-            <p className="text-2xl font-bold text-white">
-              {user.averageScore.toFixed(1)}
-            </p>
-          </div>
-        )}
-        {(user.totalReviews !== undefined || user.reviews_count !== undefined) && (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Avaliações</p>
-            <p className="text-2xl font-bold text-white">{user.reviews_count ?? user.totalReviews ?? 0}</p>
+            <p className="text-xs text-zinc-500 mb-1">Role</p>
+            <p className="text-sm font-medium text-zinc-300 capitalize">{user.role}</p>
           </div>
         )}
       </div>
@@ -165,30 +85,42 @@ export default function UserDetailPage() {
       {/* Bio */}
       {user.bio && (
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-6">
-          <h2 className="text-lg font-semibold mb-4">Sobre</h2>
-          <p className="text-sm text-zinc-300 whitespace-pre-wrap">{user.bio}</p>
+          <h2 className="text-lg font-semibold mb-4">Bio</h2>
+          <p className="text-sm text-zinc-300">{user.bio}</p>
+        </div>
+      )}
+
+      {/* Estatísticas */}
+      {user.stats && (
+        <div className="grid gap-4 md:grid-cols-3">
+          {user.stats.drops !== undefined && (
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
+              <p className="text-xs text-zinc-500 mb-1">Drops</p>
+              <p className="text-2xl font-bold text-white">{user.stats.drops}</p>
+            </div>
+          )}
+          {user.stats.reviews !== undefined && (
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
+              <p className="text-xs text-zinc-500 mb-1">Reviews</p>
+              <p className="text-2xl font-bold text-white">{user.stats.reviews}</p>
+            </div>
+          )}
+          {user.stats.disciplines !== undefined && (
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
+              <p className="text-xs text-zinc-500 mb-1">Disciplinas</p>
+              <p className="text-2xl font-bold text-white">{user.stats.disciplines}</p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Datas */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {(user.createdAt || user.created_at) && (
+      <div className="grid gap-4 md:grid-cols-2">
+        {user.created_at && (
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Membro desde</p>
+            <p className="text-xs text-zinc-500 mb-1">Criado em</p>
             <p className="text-sm font-medium text-zinc-300">
-              {new Date(user.created_at || user.createdAt || "").toLocaleDateString("pt-BR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-              })}
-            </p>
-          </div>
-        )}
-        {(user.updatedAt || user.updated_at) && (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Atualizado em</p>
-            <p className="text-sm font-medium text-zinc-300">
-              {new Date(user.updated_at || user.updatedAt || "").toLocaleDateString("pt-BR", {
+              {new Date(user.created_at).toLocaleDateString("pt-BR", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -198,11 +130,11 @@ export default function UserDetailPage() {
             </p>
           </div>
         )}
-        {user.last_login && (
+        {user.updated_at && (
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4">
-            <p className="text-xs text-zinc-500 mb-1">Ultimo Acesso</p>
+            <p className="text-xs text-zinc-500 mb-1">Atualizado em</p>
             <p className="text-sm font-medium text-zinc-300">
-              {new Date(user.last_login).toLocaleDateString("pt-BR", {
+              {new Date(user.updated_at).toLocaleDateString("pt-BR", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",

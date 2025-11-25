@@ -1,9 +1,5 @@
-"use client";
-
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { apiGet } from "../../../../lib/api";
 
 interface RAGBlockDetail {
@@ -20,58 +16,24 @@ interface RAGBlockDetail {
   metadata?: Record<string, any>;
 }
 
-export default function RAGDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const ragId = params.id as string;
-
-  const [rag, setRag] = useState<RAGBlockDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await apiGet(`/admin/rag/blocks/${ragId}`);
-        setRag(data);
-      } catch (e) {
-        console.error("Erro ao buscar RAG block:", e);
-        setError("Erro ao carregar detalhes do RAG block");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [ragId]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <p className="text-sm text-zinc-400">Carregando...</p>
-      </div>
-    );
+async function getRAGDetail(id: string): Promise<RAGBlockDetail | null> {
+  try {
+    const data = await apiGet(`/admin/rag/blocks/${id}`);
+    return data;
+  } catch (e) {
+    console.error("Erro ao buscar RAG block:", e);
+    return null;
   }
+}
 
-  if (error || !rag) {
+export default async function RAGDetailPage({ params }: { params: { id: string } }) {
+  const rag = await getRAGDetail(params.id);
+
+  if (!rag) {
     return (
       <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <div className="rounded-lg border border-red-900 bg-red-950/40 p-4">
-          <p className="text-sm text-red-400">{error || "RAG block não encontrado"}</p>
-        </div>
+        <h1 className="text-2xl font-semibold">RAG block não encontrado</h1>
+        <p className="text-sm text-zinc-400">O RAG block que você está procurando não existe ou foi removido.</p>
       </div>
     );
   }
@@ -80,12 +42,6 @@ export default function RAGDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300 mb-4"
-        >
-          ← Voltar
-        </button>
         <h1 className="text-3xl font-bold text-white mb-2">{rag.title}</h1>
       </div>
 

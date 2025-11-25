@@ -1,9 +1,5 @@
-"use client";
-
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { apiGet } from "../../../../lib/api";
 
 interface BlueprintDetail {
@@ -24,58 +20,24 @@ interface BlueprintDetail {
   metadata?: Record<string, any>;
 }
 
-export default function BlueprintDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const blueprintId = params.id as string;
-
-  const [blueprint, setBlueprint] = useState<BlueprintDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await apiGet(`/admin/debug/blueprints/${blueprintId}`);
-        setBlueprint(data);
-      } catch (e) {
-        console.error("Erro ao buscar blueprint:", e);
-        setError("Erro ao carregar detalhes do blueprint");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [blueprintId]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <p className="text-sm text-zinc-400">Carregando...</p>
-      </div>
-    );
+async function getBlueprintDetail(id: string): Promise<BlueprintDetail | null> {
+  try {
+    const data = await apiGet(`/admin/debug/blueprints/${id}`);
+    return data;
+  } catch (e) {
+    console.error("Erro ao buscar blueprint:", e);
+    return null;
   }
+}
 
-  if (error || !blueprint) {
+export default async function BlueprintDetailPage({ params }: { params: { id: string } }) {
+  const blueprint = await getBlueprintDetail(params.id);
+
+  if (!blueprint) {
     return (
       <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <div className="rounded-lg border border-red-900 bg-red-950/40 p-4">
-          <p className="text-sm text-red-400">{error || "Blueprint não encontrado"}</p>
-        </div>
+        <h1 className="text-2xl font-semibold">Blueprint não encontrado</h1>
+        <p className="text-sm text-zinc-400">O blueprint que você está procurando não existe ou foi removido.</p>
       </div>
     );
   }
@@ -84,12 +46,6 @@ export default function BlueprintDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300 mb-4"
-        >
-          ← Voltar
-        </button>
         <h1 className="text-3xl font-bold text-white mb-2">{blueprint.name}</h1>
         <p className="text-sm text-zinc-400">{blueprint.description}</p>
       </div>

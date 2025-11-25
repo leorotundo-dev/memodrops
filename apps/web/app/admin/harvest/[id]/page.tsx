@@ -1,9 +1,5 @@
-"use client";
-
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { apiGet } from "../../../../lib/api";
 
 interface HarvestDetail {
@@ -18,58 +14,24 @@ interface HarvestDetail {
   metadata?: Record<string, any>;
 }
 
-export default function HarvestDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const harvestId = params.id as string;
-
-  const [harvest, setHarvest] = useState<HarvestDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await apiGet(`/admin/harvest/items/${harvestId}`);
-        setHarvest(data);
-      } catch (e) {
-        console.error("Erro ao buscar harvest:", e);
-        setError("Erro ao carregar detalhes do harvest");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [harvestId]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <p className="text-sm text-zinc-400">Carregando...</p>
-      </div>
-    );
+async function getHarvestDetail(id: string): Promise<HarvestDetail | null> {
+  try {
+    const data = await apiGet(`/admin/harvest/items/${id}`);
+    return data;
+  } catch (e) {
+    console.error("Erro ao buscar harvest:", e);
+    return null;
   }
+}
 
-  if (error || !harvest) {
+export default async function HarvestDetailPage({ params }: { params: { id: string } }) {
+  const harvest = await getHarvestDetail(params.id);
+
+  if (!harvest) {
     return (
       <div className="space-y-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Voltar
-        </button>
-        <div className="rounded-lg border border-red-900 bg-red-950/40 p-4">
-          <p className="text-sm text-red-400">{error || "Harvest não encontrado"}</p>
-        </div>
+        <h1 className="text-2xl font-semibold">Harvest não encontrado</h1>
+        <p className="text-sm text-zinc-400">O harvest que você está procurando não existe ou foi removido.</p>
       </div>
     );
   }
@@ -78,12 +40,6 @@ export default function HarvestDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-400 hover:text-blue-300 mb-4"
-        >
-          ← Voltar
-        </button>
         <h1 className="text-3xl font-bold text-white mb-2">{harvest.title}</h1>
         <p className="text-sm text-zinc-400">{harvest.description}</p>
       </div>
