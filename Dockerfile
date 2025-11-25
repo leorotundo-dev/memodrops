@@ -7,7 +7,9 @@ WORKDIR /app
 COPY . .
 
 # Install and build
-RUN npm cache clean --force && npm ci --include=workspace-root && npm run clean && \
+RUN rm -rf dist apps/*/dist && \
+    npm cache clean --force && \
+    npm ci --include=workspace-root && \
     npm run build --workspace=@memodrops/shared && \
     npm run build --workspace=@memodrops/ai && \
     npm run build --workspace=@memodrops/backend
