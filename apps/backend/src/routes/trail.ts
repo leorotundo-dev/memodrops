@@ -1,5 +1,4 @@
 import { FastifyInstance } from 'fastify';
-import fp from 'fastify-plugin';
 import { z } from 'zod';
 import { query } from '../db';
 import { markDropCompleted } from '../repositories/userDropRepository';
@@ -12,7 +11,7 @@ interface TrailDrop {
   difficulty: number;
 }
 
-async function routes(app: FastifyInstance) {
+export async function trailRoutes(app: FastifyInstance) {
   // Trilha do dia (MVP): primeiros N drops ainda não concluídos pelo usuário
   app.get('/trail/today', async (request, reply) => {
     const anyReq: any = request;
@@ -66,5 +65,3 @@ async function routes(app: FastifyInstance) {
     return reply.status(200).send({ user_drop: record });
   });
 }
-
-export const trailRoutes = fp(routes);
