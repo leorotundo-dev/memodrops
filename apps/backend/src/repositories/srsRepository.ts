@@ -119,7 +119,7 @@ export async function updateCardScheduling(cardId: string, data: {
       SET interval_days = $2,
           ease_factor = $3,
           repetition = $4,
-          next_review_at = NOW() + ($2 || ' days')::INTERVAL,
+          next_review_at = NOW() + ($2 * INTERVAL '1 day'),
           status = 'review',
           updated_at = NOW()
       WHERE id = $1
