@@ -3,8 +3,8 @@ import { query } from '../db';
 import { extractBlueprint } from '../services/ai/extractBlueprint';
 import { generateDropBatchForTopic } from '../services/ai/generateDropBatch';
 import { summarizeRAGBlock } from '../services/ai/summarizeRAG';
-import fetch from 'node-fetch';
 import crypto from 'crypto';
+// Removido: import fetch from 'node-fetch' - usar fetch nativo do Node 18+
 
 interface JobScheduleRow {
   id: number;
