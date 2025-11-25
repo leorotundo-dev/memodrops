@@ -22,7 +22,7 @@ export async function adminDebugRoutes(app: FastifyInstance) {
   app.get('/admin/debug/blueprints', async (req, reply) => {
     try {
       const { rows } = await query<any>(
-        `SELECT id, title, description, created_at FROM blueprints LIMIT 100`
+        `SELECT id, title, description, created_at FROM exam_blueprints LIMIT 100`
       );
       return { success: true, items: rows };
     } catch (err) {
@@ -49,16 +49,20 @@ export async function adminHarvestRoutes(app: FastifyInstance) {
   });
 }
 
+export async function adminHarvestRoutesRegister(app: FastifyInstance) {
+  await adminHarvestRoutes(app);
+}
+
 /**
  * Rotas de RAG
  */
 export async function adminRagRoutes(app: FastifyInstance) {
   app.get('/admin/rag/blocks', async (req, reply) => {
     try {
-      const { disciplina = 'Geral', topicCode = '*' } = req.query as any;
+      const { disciplina = '*', topicCode = '*' } = req.query as any;
       const { rows } = await query<any>(
         `SELECT id, title, content, created_at FROM rag_blocks 
-         WHERE (disciplina = $1 OR $1 = 'Geral') 
+         WHERE (disciplina = $1 OR $1 = '*') 
          AND (topic_code = $2 OR $2 = '*')
          LIMIT 100`,
         [disciplina, topicCode]
@@ -69,6 +73,10 @@ export async function adminRagRoutes(app: FastifyInstance) {
       return reply.status(500).send({ success: false, error: 'Erro ao buscar RAG blocks' });
     }
   });
+}
+
+export async function adminRagRoutesRegister(app: FastifyInstance) {
+  await adminRagRoutes(app);
 }
 
 /**
@@ -86,6 +94,10 @@ export async function adminUsersRoutes(app: FastifyInstance) {
       return reply.status(500).send({ success: false, error: 'Erro ao buscar usuários' });
     }
   });
+}
+
+export async function adminUsersRoutesRegister(app: FastifyInstance) {
+  await adminUsersRoutes(app);
 }
 
 export async function adminMetricsRoutes(app: FastifyInstance) {
