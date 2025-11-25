@@ -9,7 +9,8 @@ const links = [
   { href: "/admin/blueprints", label: "Blueprints" },
   { href: "/admin/rag", label: "RAG Blocks" },
   { href: "/admin/harvest", label: "Harvest" },
-  { href: "/admin/users", label: "Usuários" }
+  { href: "/admin/users", label: "Usuários" },
+  { href: "/admin/costs", label: "Custos" }
 ];
 
 export function SidebarNav() {

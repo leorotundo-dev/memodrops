@@ -12,24 +12,37 @@ interface DashboardStats {
   reviewsToday: number;
 }
 
+interface CostData {
+  totalCost: number;
+  currency: string;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [costs, setCosts] = useState<CostData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        // Ajuste essa rota para o endpoint real de métricas/admin que você tiver
-        const data = await apiGet("/admin/metrics/overview");
+        // Buscar métricas
+        const metricsData = await apiGet("/admin/metrics/overview");
         setStats({
-          usersCount: data.usersCount ?? 0,
-          dropsCount: data.dropsCount ?? 0,
-          disciplinesCount: data.disciplinesCount ?? 0,
-          reviewsToday: data.reviewsToday ?? 0
+          usersCount: metricsData.usersCount ?? 0,
+          dropsCount: metricsData.dropsCount ?? 0,
+          disciplinesCount: metricsData.disciplinesCount ?? 0,
+          reviewsToday: metricsData.reviewsToday ?? 0
+        });
+
+        // Buscar custos
+        const costsData = await apiGet("/admin/costs/real/overview");
+        setCosts({
+          totalCost: costsData.totalCost ?? 0,
+          currency: costsData.currency ?? "BRL"
         });
       } catch (e) {
-        console.error("Erro ao buscar métricas:", e);
+        console.error("Erro ao buscar dados:", e);
       } finally {
         setLoading(false);
       }
@@ -48,6 +61,16 @@ export default function DashboardPage() {
 
       {/* Resumo Financeiro */}
       <FinancialSummary />
+
+      {/* Custo Total */}
+      {!loading && costs && (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-6">
+          <p className="text-sm text-zinc-400 mb-2">Custo Total Mensal</p>
+          <div className="text-3xl font-bold text-white">
+            {costs.currency} {costs.totalCost.toFixed(2)}
+          </div>
+        </div>
+      )}
 
       <div className="border-t border-zinc-800 pt-6">
         <h2 className="text-lg font-semibold mb-4">Métricas Gerais</h2>
