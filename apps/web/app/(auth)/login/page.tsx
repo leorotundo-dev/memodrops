@@ -21,23 +21,14 @@ export default function LoginPage() {
       const data = await apiPost("/auth/login", { email, password });
       if (data?.token) {
         localStorage.setItem("memodrops_token", data.token);
+        localStorage.setItem("memodrops_user", JSON.stringify(data.user));
+        router.push("/admin/dashboard");
+      } else {
+        throw new Error("Token não recebido");
       }
-      router.push("/admin/dashboard");
     } catch (err: any) {
       console.error("Erro de login:", err);
-      
-      // BYPASS: Se o backend não responder, criar um token fake para desenvolvimento
-      console.log("Usando modo desenvolvimento - criando token fake");
-      const fakeToken = "dev_token_" + Date.now();
-      localStorage.setItem("memodrops_token", fakeToken);
-      localStorage.setItem("memodrops_user", JSON.stringify({
-        id: "dev-user",
-        email: email,
-        name: "Usuário Desenvolvimento"
-      }));
-      
-      // Redirecionar para dashboard
-      router.push("/admin/dashboard");
+      setError("Não foi possível fazer login. Verifique suas credenciais.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +48,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="voce@exemplo.com"
+              placeholder="seu@email.com"
               required
             />
           </div>
@@ -85,12 +76,6 @@ export default function LoginPage() {
             {loading ? "Entrando..." : "Entrar"}
           </PrimaryButton>
         </form>
-        
-        <div className="mt-4 pt-4 border-t border-zinc-800">
-          <p className="text-xs text-zinc-500 text-center">
-            Modo desenvolvimento: login automático habilitado
-          </p>
-        </div>
       </div>
     </div>
   );
