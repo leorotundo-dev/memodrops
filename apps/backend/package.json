@@ -8,7 +8,8 @@
     "prebuild": "npm run build --workspace @memodrops/shared",
     "build": "tsc --project tsconfig.json",
     "start": "node dist/index.js",
-    "job:harvest:test": "ts-node --transpile-only src/jobs/harvest-test.ts"
+    "job:harvest:test": "ts-node --transpile-only src/jobs/harvest-test.ts",
+    "db:migrate": "ts-node --transpile-only src/db/migrate.ts"
   },
   "dependencies": {
     "@memodrops/shared": "*",
