@@ -15,7 +15,12 @@ COPY packages/shared/package.json ./packages/shared/
 RUN npm ci --include=workspace-root
 
 # Copy source code
-COPY . .
+COPY packages/shared/src ./packages/shared/src
+COPY packages/shared/tsconfig.json ./packages/shared/
+COPY apps/ai/src ./apps/ai/src
+COPY apps/ai/tsconfig.json ./apps/ai/
+COPY apps/backend/src ./apps/backend/src
+COPY apps/backend/tsconfig.json ./apps/backend/
 
 # Build shared first
 RUN npm run build --workspace=@memodrops/shared
