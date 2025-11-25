@@ -1,4 +1,4 @@
-import { PLANS } from '@memodrops/shared';
+import { PLANS } from '@/lib/plans';
 
 export default function HomePage() {
   return (
