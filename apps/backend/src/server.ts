@@ -26,6 +26,10 @@ export async function buildServer() {
   app.log.info('🛣️  Iniciando registro de rotas...');
   await registerRoutes(app);
   app.log.info('✅ Registro de rotas concluído!');
+  
+  // Debug: listar todas as rotas registradas
+  app.log.info('📋 Rotas registradas:');
+  app.log.info(app.printRoutes());
 
   return app;
 }
