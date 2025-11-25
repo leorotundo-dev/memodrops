@@ -46,6 +46,55 @@ export async function adminMetricsRoutes(app: FastifyInstance) {
   });
 
   /**
+   * GET /admin/metrics/overview
+   * Visão geral de métricas do sistema
+   */
+  app.get('/admin/metrics/overview', async (req, reply) => {
+    try {
+      console.log('[admin-metrics] Buscando visão geral de métricas');
+
+      // Contar usuários
+      const { rows: userRows } = await query<{ count: string }>(
+        'SELECT COUNT(*) as count FROM users'
+      );
+      const usersCount = parseInt(userRows[0]?.count || '0', 10);
+
+      // Contar drops
+      const { rows: dropRows } = await query<{ count: string }>(
+        'SELECT COUNT(*) as count FROM drops'
+      );
+      const dropsCount = parseInt(dropRows[0]?.count || '0', 10);
+
+      // Contar disciplinas
+      const { rows: disciplineRows } = await query<{ count: string }>(
+        'SELECT COUNT(*) as count FROM disciplines'
+      );
+      const disciplinesCount = parseInt(disciplineRows[0]?.count || '0', 10);
+
+      // Contar reviews de hoje
+      const { rows: reviewRows } = await query<{ count: string }>(
+        `SELECT COUNT(*) as count FROM srs_reviews 
+         WHERE DATE(reviewed_at) = CURRENT_DATE`
+      );
+      const reviewsToday = parseInt(reviewRows[0]?.count || '0', 10);
+
+      return {
+        success: true,
+        usersCount,
+        dropsCount,
+        disciplinesCount,
+        reviewsToday
+      };
+    } catch (err) {
+      console.error('[admin-metrics] Erro ao buscar overview:', err);
+      return reply.status(500).send({
+        success: false,
+        error: err instanceof Error ? err.message : 'Erro ao buscar métricas'
+      });
+    }
+  });
+
+  /**
    * GET /admin/metrics/daily
    * Métricas diárias com filtros
    * 
