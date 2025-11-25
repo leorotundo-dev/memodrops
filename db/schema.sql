@@ -64,3 +64,18 @@ CREATE TABLE IF NOT EXISTS srs_reviews (
   grade INTEGER NOT NULL,
   reviewed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Stage 12 - RAG (Retrieval-Augmented Generation)
+
+CREATE TABLE IF NOT EXISTS rag_blocks (
+  id SERIAL PRIMARY KEY,
+  disciplina TEXT NOT NULL,
+  topic_code TEXT NOT NULL,
+  banca TEXT,
+  source_url TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  embedding REAL[],
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rag_blocks_disciplina_topic ON rag_blocks(disciplina, topic_code);
