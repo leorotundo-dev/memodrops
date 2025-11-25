@@ -1,5 +1,10 @@
 import { FastifyInstance } from 'fastify';
+import fastifyJwt from '@fastify/jwt';
+import { env } from '../env';
 
 export async function registerPlugins(app: FastifyInstance) {
-  // Aqui entram plugins de DB, Redis, métricas etc.
+  // Registrar JWT
+  await app.register(fastifyJwt, {
+    secret: env.JWT_SECRET
+  });
 }
