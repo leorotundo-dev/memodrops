@@ -1,9 +1,8 @@
 import { FastifyInstance } from 'fastify';
-import fp from 'fastify-plugin';
 import { z } from 'zod';
 import { createDrop, listDrops } from '../repositories/dropRepository';
 
-async function routes(app: FastifyInstance) {
+export async function dropsRoutes(app: FastifyInstance) {
   app.get('/drops', async (request) => {
     const querySchema = z.object({
       disciplineId: z.string().uuid().optional()
@@ -35,5 +34,3 @@ async function routes(app: FastifyInstance) {
     return reply.status(201).send({ drop });
   });
 }
-
-export const dropsRoutes = fp(routes);
