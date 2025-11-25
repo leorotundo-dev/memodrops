@@ -22,7 +22,7 @@ export async function adminDebugRoutes(app: FastifyInstance) {
   app.get('/admin/debug/blueprints', async (req, reply) => {
     try {
       const { rows } = await query<any>(
-        `SELECT id, title, description, created_at FROM exam_blueprints LIMIT 100`
+        `SELECT id, harvest_item_id, exam_code, banca, cargo, disciplina, created_at FROM exam_blueprints LIMIT 100`
       );
       return { success: true, items: rows };
     } catch (err) {
@@ -39,7 +39,7 @@ export async function adminHarvestRoutes(app: FastifyInstance) {
   app.get('/admin/harvest/items', async (req, reply) => {
     try {
       const { rows } = await query<any>(
-        `SELECT id, title, description, created_at FROM harvest_items LIMIT 100`
+        `SELECT id, source, url, status, created_at FROM harvest_items LIMIT 100`
       );
       return { success: true, items: rows };
     } catch (err) {
@@ -61,7 +61,7 @@ export async function adminRagRoutes(app: FastifyInstance) {
     try {
       const { disciplina = '*', topicCode = '*' } = req.query as any;
       const { rows } = await query<any>(
-        `SELECT id, title, content, created_at FROM rag_blocks 
+        `SELECT id, disciplina, topic_code, summary, created_at FROM rag_blocks 
          WHERE (disciplina = $1 OR $1 = '*') 
          AND (topic_code = $2 OR $2 = '*')
          LIMIT 100`,
