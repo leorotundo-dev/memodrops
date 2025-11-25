@@ -1,15 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { apiGet } from "../../../lib/api";
 import { Table } from "../../../components/ui/Table";
 
 interface HarvestItem {
-  id: number;
-  source: string;
-  url: string;
-  status: string;
+  id: string | number;
+  source?: string;
+  url?: string;
+  status?: string;
+  title?: string;
+  description?: string;
+  progress?: number;
   created_at?: string;
+  updated_at?: string;
 }
 
 export default function HarvestPage() {
@@ -34,30 +39,54 @@ export default function HarvestPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-semibold">Harvest</h1>
+        <h1 className="text-2xl font-semibold">Harvest Items</h1>
+        <p className="text-sm text-zinc-400">
+          Itens colhidos do sistema.
+        </p>
       </div>
 
       {loading && <p className="text-sm text-zinc-400">Carregando...</p>}
 
-      {!loading && (
-        <Table headers={["ID", "Fonte", "URL", "Status", "Criado em"]}>
+      {!loading && items.length === 0 && (
+        <div className="rounded-lg bg-zinc-900/40 border border-zinc-800 p-6 text-center">
+          <p className="text-sm text-zinc-400">Nenhum harvest item encontrado</p>
+        </div>
+      )}
+
+      {!loading && items.length > 0 && (
+        <Table headers={["ID", "Título", "Status", "Progresso", "Criado em", "Atualizado em"]}>
           {items.map(item => (
-            <tr key={item.id}>
-              <td className="px-3 py-2 text-xs text-zinc-300">{item.id}</td>
+            <tr key={item.id} className="hover:bg-zinc-800/40 cursor-pointer transition-colors">
+              <td className="px-3 py-2 text-xs text-zinc-300 font-mono">
+                <Link
+                  href={`/admin/harvest/${item.id}`}
+                  className="hover:text-blue-400 hover:underline"
+                >
+                  {typeof item.id === "string" ? item.id.substring(0, 8) : item.id}...
+                </Link>
+              </td>
               <td className="px-3 py-2 text-xs text-zinc-50">
-                {item.source}
-              </td>
-              <td className="px-3 py-2 text-xs text-blue-400 underline">
-                <a href={item.url} target="_blank">
-                  {item.url}
-                </a>
-              </td>
-              <td className="px-3 py-2 text-xs text-zinc-400">
-                {item.status}
+                <Link
+                  href={`/admin/harvest/${item.id}`}
+                  className="hover:text-blue-400 hover:underline"
+                >
+                  {item.title || item.source || "-"}
+                </Link>
               </td>
               <td className="px-3 py-2 text-xs text-zinc-400">
+                <span className="capitalize">{item.status ?? "-"}</span>
+              </td>
+              <td className="px-3 py-2 text-xs text-zinc-400">
+                {item.progress !== undefined ? `${item.progress}%` : "-"}
+              </td>
+              <td className="px-3 py-2 text-xs text-zinc-500">
                 {item.created_at
-                  ? new Date(item.created_at).toLocaleString("pt-BR")
+                  ? new Date(item.created_at).toLocaleDateString("pt-BR")
+                  : "-"}
+              </td>
+              <td className="px-3 py-2 text-xs text-zinc-500">
+                {item.updated_at
+                  ? new Date(item.updated_at).toLocaleDateString("pt-BR")
                   : "-"}
               </td>
             </tr>

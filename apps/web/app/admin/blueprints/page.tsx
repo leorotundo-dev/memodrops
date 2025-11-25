@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { apiGet } from "../../../lib/api";
 import { Table } from "../../../components/ui/Table";
 
@@ -70,11 +71,23 @@ export default function BlueprintsPage() {
           ]}
         >
           {items.map(bp => (
-            <tr key={bp.id}>
+            <tr key={bp.id} className="hover:bg-zinc-800/40 cursor-pointer transition-colors">
               <td className="px-3 py-2 text-xs text-zinc-300 font-mono">
-                {typeof bp.id === "string" ? bp.id.substring(0, 8) : bp.id}...
+                <Link
+                  href={`/admin/blueprints/${bp.id}`}
+                  className="hover:text-blue-400 hover:underline"
+                >
+                  {typeof bp.id === "string" ? bp.id.substring(0, 8) : bp.id}...
+                </Link>
               </td>
-              <td className="px-3 py-2 text-xs text-zinc-50">{bp.name}</td>
+              <td className="px-3 py-2 text-xs text-zinc-50">
+                <Link
+                  href={`/admin/blueprints/${bp.id}`}
+                  className="hover:text-blue-400 hover:underline"
+                >
+                  {bp.name}
+                </Link>
+              </td>
               <td className="px-3 py-2 text-xs text-zinc-400">
                 {bp.disciplina ?? "-"}
               </td>
