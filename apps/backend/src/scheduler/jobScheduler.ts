@@ -2,6 +2,8 @@ import cron from 'node-cron';
 import { query } from '../db';
 import { extractBlueprint } from '../services/ai/extractBlueprint';
 import { generateDropBatchForTopic } from '../services/ai/generateDropBatch';
+import { summarizeRAGBlock } from '../services/ai/summarizeRAG';
+import fetch from 'node-fetch';
 import crypto from 'crypto';
 
 interface JobScheduleRow {
@@ -296,12 +298,150 @@ export async function initializeScheduler() {
             console.error(`[scheduler] Erro ao executar ${schedule.job_name}:`, err);
           });
         });
+      } else if (schedule.job_name === 'rag-feeder') {
+        cron.schedule(schedule.cron_expression, () => {
+          console.log(`[scheduler] ⏰ Executando job: ${schedule.job_name}`);
+          ragFeederJob().catch(err => {
+            console.error(`[scheduler] Erro ao executar ${schedule.job_name}:`, err);
+          });
+        });
       }
     }
 
     console.log('[scheduler] ✅ Scheduler inicializado com sucesso');
   } catch (err) {
     console.error('[scheduler] ❌ Erro ao inicializar scheduler:', err);
+  }
+}
+
+/**
+ * Job: Alimentar rag_blocks com conteúdo de fontes externas
+ */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const RAG_SOURCES = [
+  {
+    disciplina: 'Português',
+    topicCode: 'PT-01',
+    topicName: 'Morfologia',
+    banca: null,
+    sourceUrl: 'https://brasilescola.uol.com.br/gramatica/morfologia.htm'
+  },
+  {
+    disciplina: 'Direito Constitucional',
+    topicCode: 'DC-01',
+    topicName: 'Constituição Federal – Princípios Fundamentais',
+    banca: null,
+    sourceUrl: 'https://www.todamateria.com.br/constituicao-federal/'
+  }
+];
+
+async function ragFeederJob() {
+  console.log('[scheduler] Iniciando job: rag-feeder');
+  const jobName = 'rag-feeder';
+  let itemsProcessed = 0;
+  let itemsFailed = 0;
+
+  try {
+    await logJobExecution(jobName, 'STARTED');
+
+    for (const src of RAG_SOURCES) {
+      try {
+        console.log(`[scheduler] Processando: ${src.topicCode} - ${src.topicName}`);
+
+        // Verificar se já existe
+        const { rows: existing } = await query<{ id: number }>(
+          `
+          SELECT id
+          FROM rag_blocks
+          WHERE disciplina = $1
+            AND topic_code = $2
+            AND (banca IS NULL OR banca = $3)
+            AND source_url = $4
+          LIMIT 1
+          `,
+          [src.disciplina, src.topicCode, src.banca ?? null, src.sourceUrl]
+        );
+
+        if (existing.length > 0) {
+          console.log('[scheduler] ⏭️  Já existe registro para esta fonte, pulando.');
+          continue;
+        }
+
+        // Buscar HTML
+        const res = await fetch(src.sourceUrl);
+        if (!res.ok) {
+          console.error(`[scheduler] ❌ Erro ao buscar URL (${res.status}): ${src.sourceUrl}`);
+          itemsFailed++;
+          continue;
+        }
+
+        // Extrair texto
+        const html = await res.text();
+        const plainText = htmlToText(html);
+
+        if (!plainText || plainText.length < 500) {
+          console.warn('[scheduler] ⚠️  Texto extraído muito curto, pulando.');
+          continue;
+        }
+
+        // Gerar resumo com IA
+        const { summary } = await summarizeRAGBlock({
+          disciplina: src.disciplina,
+          topicCode: src.topicCode,
+          topicName: src.topicName,
+          banca: src.banca ?? undefined,
+          sourceUrl: src.sourceUrl,
+          content: plainText
+        });
+
+        if (!summary) {
+          console.warn('[scheduler] ⚠️  Summary vazio, pulando.');
+          continue;
+        }
+
+        // Inserir em rag_blocks
+        await query(
+          `
+          INSERT INTO rag_blocks (
+            disciplina,
+            topic_code,
+            banca,
+            source_url,
+            summary,
+            embedding
+          ) VALUES ($1, $2, $3, $4, $5, NULL)
+          `,
+          [
+            src.disciplina,
+            src.topicCode,
+            src.banca ?? null,
+            src.sourceUrl,
+            summary
+          ]
+        );
+
+        itemsProcessed++;
+        console.log('[scheduler] ✅ Bloco inserido em rag_blocks.');
+      } catch (err) {
+        itemsFailed++;
+        console.error('[scheduler] ❌ Erro ao processar fonte:', err);
+      }
+    }
+
+    await logJobExecution(jobName, 'COMPLETED', itemsProcessed, itemsFailed);
+    console.log(`[scheduler] ✅ Job rag-feeder finalizado: ${itemsProcessed} processados, ${itemsFailed} falhas`);
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    await logJobExecution(jobName, 'FAILED', itemsProcessed, itemsFailed, errorMsg);
+    console.error('[scheduler] ❌ Erro fatal no job rag-feeder:', err);
   }
 }
 
@@ -315,6 +455,8 @@ export async function runJobManually(jobName: string) {
     await extractBlueprintsJob();
   } else if (jobName === 'generate-drops') {
     await generateDropsJob();
+  } else if (jobName === 'rag-feeder') {
+    await ragFeederJob();
   } else {
     console.error(`[scheduler] Job desconhecido: ${jobName}`);
   }

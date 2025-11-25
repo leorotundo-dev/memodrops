@@ -56,5 +56,6 @@ CREATE INDEX IF NOT EXISTS idx_job_schedule_job_name ON job_schedule(job_name);
 INSERT INTO job_schedule (job_name, cron_expression, is_active)
 VALUES
   ('extract-blueprints', '0 */6 * * *', true),  -- A cada 6 horas
-  ('generate-drops', '0 0 * * *', true)         -- Diariamente à meia-noite
+  ('generate-drops', '0 0 * * *', true),        -- Diariamente à meia-noite
+  ('rag-feeder', '0 2 * * *', true)             -- Diariamente às 2h da manhã
 ON CONFLICT (job_name) DO NOTHING;
