@@ -7,8 +7,8 @@ cmds = ["npm install --include=workspace-root"]
 [phases.build]
 cmds = [
   "npm run build --workspace=@memodrops/shared",
-  "npm run build --workspace=backend"
+  "npm run build --workspace=@memodrops/backend"
 ]
 
 [start]
-cmd = "npm run start --workspace=backend"
+cmd = "npm run start --workspace=@memodrops/backend"
