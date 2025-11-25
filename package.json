@@ -7,17 +7,17 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace backend",
-    "dev:backend": "npm run dev --workspace backend",
-    "dev:web": "npm run dev --workspace web",
-    "dev:ai": "npm run dev --workspace ai",
-    "build": "npm run build --workspace backend && npm run build --workspace web",
-    "build:backend": "npm run build --workspace backend",
-    "build:web": "npm run build --workspace web",
-    "start": "npm run start --workspace backend",
-    "start:web": "npm run start --workspace web",
-    "lint": "npm run lint --workspace backend || true && npm run lint --workspace web || true",
-    "migrate": "npm run migrate --workspace backend || true"
+    "dev": "npm run dev --workspace @memodrops/backend",
+    "dev:backend": "npm run dev --workspace @memodrops/backend",
+    "dev:web": "npm run dev --workspace @memodrops/web",
+    "dev:ai": "npm run dev --workspace @memodrops/ai",
+    "build": "npm run build --workspace @memodrops/backend && npm run build --workspace @memodrops/web",
+    "build:backend": "npm run build --workspace @memodrops/backend",
+    "build:web": "npm run build --workspace @memodrops/web",
+    "start": "npm run start --workspace @memodrops/backend",
+    "start:web": "npm run start --workspace @memodrops/web",
+    "lint": "npm run lint --workspace @memodrops/backend || true && npm run lint --workspace @memodrops/web || true",
+    "migrate": "npm run migrate --workspace @memodrops/backend || true"
   },
   "engines": {
     "node": ">=18.0.0"
