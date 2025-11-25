@@ -1,50 +1,62 @@
-# Build stage
+# Dockerfile otimizado para monorepo npm workspaces - Backend only
+# Baseado em boas práticas para Railway
+
+# ============================================
+# STAGE 1: BUILDER
+# ============================================
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy root package files
+# 1. Copiar apenas os package.json necessários
 COPY package.json package-lock.json ./
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/backend/package.json ./apps/backend/
 
-# Copy workspace packages
-COPY packages/shared ./packages/shared
-COPY apps/backend ./apps/backend
+# 2. Instalar dependências (npm vai resolver workspaces automaticamente)
+RUN npm ci --prefer-offline --no-audit
 
-# Install dependencies
-RUN npm install
+# 3. Copiar apenas código-fonte necessário
+COPY packages/shared/src ./packages/shared/src
+COPY packages/shared/tsconfig.json ./packages/shared/
+COPY apps/backend/src ./apps/backend/src
+COPY apps/backend/tsconfig.json ./apps/backend/
 
-# Build shared package
-WORKDIR /app/packages/shared
-RUN npm run build
+# 4. Build do shared (dependência do backend)
+RUN npm run build --workspace=@memodrops/shared
 
-# Build backend
-WORKDIR /app/apps/backend
-RUN npm run build
+# 5. Build do backend
+RUN npm run build --workspace=@memodrops/backend
 
-# Runtime stage
+# ============================================
+# STAGE 2: RUNTIME
+# ============================================
 FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy root package files
+# 1. Copiar apenas package.json (não node_modules)
 COPY package.json package-lock.json ./
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/backend/package.json ./apps/backend/
 
-# Copy workspace packages
-COPY packages/shared ./packages/shared
-COPY apps/backend ./apps/backend
+# 2. Instalar APENAS dependências de produção
+RUN npm ci --prefer-offline --no-audit --omit=dev
 
-# Install production dependencies only
-RUN npm install --omit=dev
-
-# Copy built files from builder
+# 3. Copiar apenas os arquivos compilados do builder
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 
-# Expose port
+# 4. Variáveis de ambiente padrão
+ENV NODE_ENV=production
+ENV PORT=3333
+
+# 5. Expor porta
 EXPOSE 3333
 
-# Set working directory to backend
-WORKDIR /app/apps/backend
+# 6. Health check (opcional, mas recomendado)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3333/', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
-# Start the application
-CMD ["node", "dist/index.js"]
+# 7. Executar backend
+CMD ["node", "apps/backend/dist/index.js"]
