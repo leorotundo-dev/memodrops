@@ -40,3 +40,27 @@ CREATE TABLE IF NOT EXISTS user_drops (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (user_id, drop_id)
 );
+
+-- Stage 4 - SRS básico
+
+CREATE TABLE IF NOT EXISTS srs_cards (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  drop_id UUID NOT NULL REFERENCES drops(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'learning',
+  interval_days INTEGER NOT NULL DEFAULT 1,
+  ease_factor DOUBLE PRECISION NOT NULL DEFAULT 2.5,
+  repetition INTEGER NOT NULL DEFAULT 0,
+  next_review_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, drop_id)
+);
+
+CREATE TABLE IF NOT EXISTS srs_reviews (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  card_id UUID NOT NULL REFERENCES srs_cards(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  grade INTEGER NOT NULL,
+  reviewed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

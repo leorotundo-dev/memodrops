@@ -5,6 +5,7 @@ import authRoutes from './auth';
 import disciplinesRoutes from './disciplines';
 import dropsRoutes from './drops';
 import trailRoutes from './trail';
+import srsRoutes from './srs';
 
 export async function registerRoutes(app: FastifyInstance) {
   app.register(healthRoutes);
@@ -13,4 +14,5 @@ export async function registerRoutes(app: FastifyInstance) {
   app.register(disciplinesRoutes);
   app.register(dropsRoutes);
   app.register(trailRoutes);
+  app.register(srsRoutes);
 }
